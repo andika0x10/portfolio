@@ -41,6 +41,7 @@ function WordSplit({ text, highlights = [] }: { text: string; highlights?: strin
         return (
           <span key={index} className="word-clip-container motion-word-clip editorial-clip">
             <span className="word-inner motion-word editorial-word">
+              <span className="editorial-trail" aria-hidden="true" />
               <span
                 className={`motion-proximity-word editorial-proximity ${highlighted ? "keyword-chip" : ""}`}
                 data-cursor-hover={highlighted ? "true" : undefined}

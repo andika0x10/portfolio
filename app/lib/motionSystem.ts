@@ -1,5 +1,20 @@
 import gsap from "gsap";
 
+const nativeEases = new Map<string, string>();
+
+function getNativeEase(name: string) {
+  const cached = nativeEases.get(name);
+  if (cached) return cached;
+  const ease = gsap.parseEase(name);
+  const value = CSS.supports("animation-timing-function", "linear(0, 1)")
+    ? `linear(${Array.from({ length: 61 }, (_, index) => ease(index / 60).toFixed(6)).join(",")})`
+    : name === "sine.inOut"
+      ? "cubic-bezier(0.37, 0, 0.63, 1)"
+      : "cubic-bezier(0.165, 0.84, 0.44, 1)";
+  nativeEases.set(name, value);
+  return value;
+}
+
 export const motionSystem = {
   trigger: {
     labelStart: "top 90%",
@@ -20,12 +35,13 @@ export const motionSystem = {
   },
   paragraph: {
     from: { yPercent: 115 },
-    to: { yPercent: 0, stagger: { each: 0.018, from: "start" }, duration: 0.5, ease: "power3.out" },
+    // Avoid allocating a separate 3D layer for every word and its highlight.
+    to: { yPercent: 0, stagger: { each: 0.018, from: "start" }, duration: 0.5, ease: "power3.out", force3D: false },
   },
   trail: {
-    from: { backgroundColor: "rgba(232, 224, 255, 0)" },
+    from: { opacity: 0 },
     to: {
-      backgroundColor: "rgba(232, 224, 255, 0.72)",
+      opacity: 0.72,
       stagger: { each: 0.016, from: "start" },
       duration: 0.12,
       ease: "sine.inOut",
@@ -77,28 +93,114 @@ export function revealTitle(target: gsap.TweenTarget) {
 }
 
 export function revealWordsWithTrail(words: gsap.TweenTarget, clips?: NodeListOf<HTMLElement> | HTMLElement[], scrollTrigger?: gsap.TweenVars["scrollTrigger"]) {
+  const wordElements = gsap.utils.toArray<HTMLElement>(words);
+  const trails = wordElements.flatMap((word) => Array.from(word.querySelectorAll<HTMLElement>(".editorial-trail")));
+  const clipStyles = Array.from(clips ?? [], (clip) => ({ clip, overflow: clip.style.overflow }));
+  const wordStyles = wordElements.map((word) => ({ word, transform: word.style.transform }));
+  const nativeWords: Animation[] = [];
+  const nativeTrails: Animation[] = [];
+  const cancelTrails = () => {
+    nativeTrails.forEach((animation) => animation.cancel());
+    nativeTrails.length = 0;
+  };
+  const finishWords = () => {
+    wordStyles.forEach(({ word, transform }) => (word.style.transform = transform));
+    nativeWords.forEach((animation) => animation.cancel());
+    nativeWords.length = 0;
+  };
+
+  clipStyles.forEach(({ clip }) => (clip.style.overflow = "hidden"));
+  // These batched style writes also need restoring when motion is interrupted.
+  gsap.context(() => () => {
+    cancelTrails();
+    finishWords();
+    clipStyles.forEach(({ clip, overflow }) => (clip.style.overflow = overflow));
+  });
   const timeline = gsap.timeline({ scrollTrigger });
-  timeline.fromTo(
-    words,
-    motionSystem.paragraph.from,
-    {
-      ...motionSystem.paragraph.to,
-      onComplete: () => clips?.forEach((clip) => (clip.style.overflow = "visible")),
-    },
-    0
-  );
-  timeline.fromTo(words, motionSystem.trail.from, motionSystem.trail.to, 0.1);
-  // Both passes follow reading order; reversing the timeline reverses the stagger too.
-  timeline.to(
-    words,
-    {
-      ...motionSystem.trail.from,
-      stagger: { each: 0.016, from: "start" },
-      duration: 0.2,
-      ease: "sine.inOut",
-    },
-    ">0.08"
-  );
+  if (wordElements.length && typeof wordElements[0].animate === "function") {
+    wordElements.forEach((word) => (word.style.transform = "translateY(115%)"));
+    const { duration, stagger, ease } = motionSystem.paragraph.to;
+    const nativeEase = getNativeEase(ease);
+    timeline.to(
+      {},
+      {
+        duration: duration + (wordElements.length - 1) * stagger.each,
+        onStart: () => {
+          wordElements.forEach((word, index) => {
+            nativeWords.push(
+              word.animate([{ transform: "translateY(115%)" }, { transform: "translateY(0%)" }], {
+                duration: duration * 1000,
+                delay: index * stagger.each * 1000,
+                easing: nativeEase,
+                fill: "forwards",
+              })
+            );
+          });
+        },
+        onComplete: () => {
+          finishWords();
+          clips?.forEach((clip) => (clip.style.overflow = "visible"));
+        },
+      },
+      0
+    );
+  } else {
+    // Keep a functional reveal on browsers without Element.animate().
+    wordElements.forEach((word) => gsap.getProperty(word, "y"));
+    timeline.fromTo(
+      words,
+      motionSystem.paragraph.from,
+      {
+        ...motionSystem.paragraph.to,
+        onComplete: () => clips?.forEach((clip) => (clip.style.overflow = "visible")),
+      },
+      0
+    );
+  }
+  if (trails.length && typeof trails[0].animate === "function") {
+    const stagger = motionSystem.trail.to.stagger.each;
+    const rise = motionSystem.trail.to.duration;
+    const riseEnd = 0.1 + rise + (trails.length - 1) * stagger;
+    const duration = riseEnd + 0.18;
+    const ease = getNativeEase(motionSystem.trail.to.ease);
+    // A lightweight GSAP clock keeps focus completion in the GSAP sequence,
+    // while the browser runs each opacity animation without per-frame JS writes.
+    timeline.to(
+      {},
+      {
+        duration: riseEnd + 0.28 + (trails.length - 1) * stagger,
+        onStart: () => {
+          trails.forEach((trail, index) => {
+            nativeTrails.push(
+              trail.animate(
+                [
+                  { opacity: 0, offset: 0, easing: ease },
+                  { opacity: 0.72, offset: rise / duration },
+                  { opacity: 0.72, offset: (duration - 0.2) / duration, easing: ease },
+                  { opacity: 0, offset: 1 },
+                ],
+                { duration: duration * 1000, delay: (0.1 + index * stagger) * 1000 }
+              )
+            );
+          });
+        },
+        onComplete: cancelTrails,
+      },
+      0
+    );
+  } else {
+    timeline.fromTo(trails, motionSystem.trail.from, motionSystem.trail.to, 0.1);
+    timeline.to(
+      trails,
+      {
+        ...motionSystem.trail.from,
+        stagger: { each: 0.016, from: "start" },
+        duration: 0.2,
+        ease: "sine.inOut",
+      },
+      ">0.08"
+    );
+  }
   return timeline;
 }
 
@@ -167,7 +269,7 @@ export function attachProximity(container: HTMLElement, selector = ".editorial-p
         const clip = word.closest<HTMLElement>(".editorial-clip");
         const rect = word.parentElement!.getBoundingClientRect();
         const distance =
-          clip?.style.overflow === "hidden" || rect.bottom < 0 || rect.top > window.innerHeight
+          clip?.style.overflow === "hidden" || word.closest(".editorial-pending") || rect.bottom < 0 || rect.top > window.innerHeight
             ? Infinity
             : Math.hypot(event.clientX - (rect.left + rect.width / 2), event.clientY - (rect.top + rect.height / 2));
         return { word, distance };

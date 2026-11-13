@@ -98,6 +98,7 @@ a {
   overflow-wrap: anywhere;
 }
 .editorial-proximity {
+  position: relative;
   transition: transform 120ms ease-out;
   transform-origin: center bottom;
 }
@@ -111,6 +112,27 @@ a {
 .editorial-clip {
   padding-bottom: 0.12em;
   margin-bottom: -0.12em;
+}
+.editorial-word {
+  position: relative;
+}
+.editorial-trail {
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  opacity: 0;
+  pointer-events: none;
+}
+/* Prepare off-screen text without constructing a tween for every word. */
+.editorial-pending .editorial-clip {
+  overflow: hidden;
+}
+.editorial-pending .editorial-word {
+  transform: translateY(115%);
+}
+.editorial-pending[data-reveal-simple] {
+  opacity: 0;
+  transform: translateY(12px);
 }
 
 .text-link {
@@ -400,5 +422,13 @@ a {
   }
   .editorial-clip {
     overflow: visible !important;
+  }
+  .editorial-word,
+  [data-reveal-simple] {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+  .editorial-trail {
+    opacity: 0 !important;
   }
 }
