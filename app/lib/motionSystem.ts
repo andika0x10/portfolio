@@ -78,18 +78,27 @@ export function revealTitle(target: gsap.TweenTarget) {
 
 export function revealWordsWithTrail(words: gsap.TweenTarget, clips?: NodeListOf<HTMLElement> | HTMLElement[], scrollTrigger?: gsap.TweenVars["scrollTrigger"]) {
   const timeline = gsap.timeline({ scrollTrigger });
-  timeline.fromTo(words, motionSystem.paragraph.from, {
-    ...motionSystem.paragraph.to,
-    onComplete: () => clips?.forEach((clip) => (clip.style.overflow = "visible")),
-  }, 0);
+  timeline.fromTo(
+    words,
+    motionSystem.paragraph.from,
+    {
+      ...motionSystem.paragraph.to,
+      onComplete: () => clips?.forEach((clip) => (clip.style.overflow = "visible")),
+    },
+    0
+  );
   timeline.fromTo(words, motionSystem.trail.from, motionSystem.trail.to, 0.1);
   // Both passes follow reading order; reversing the timeline reverses the stagger too.
-  timeline.to(words, {
-    ...motionSystem.trail.from,
-    stagger: { each: 0.016, from: "start" },
-    duration: 0.2,
-    ease: "sine.inOut",
-  }, ">0.08");
+  timeline.to(
+    words,
+    {
+      ...motionSystem.trail.from,
+      stagger: { each: 0.016, from: "start" },
+      duration: 0.2,
+      ease: "sine.inOut",
+    },
+    ">0.08"
+  );
   return timeline;
 }
 
@@ -157,9 +166,10 @@ export function attachProximity(container: HTMLElement, selector = ".editorial-p
       const positions = words.map((word) => {
         const clip = word.closest<HTMLElement>(".editorial-clip");
         const rect = word.parentElement!.getBoundingClientRect();
-        const distance = clip?.style.overflow === "hidden" || rect.bottom < 0 || rect.top > window.innerHeight
-          ? Infinity
-          : Math.hypot(event.clientX - (rect.left + rect.width / 2), event.clientY - (rect.top + rect.height / 2));
+        const distance =
+          clip?.style.overflow === "hidden" || rect.bottom < 0 || rect.top > window.innerHeight
+            ? Infinity
+            : Math.hypot(event.clientX - (rect.left + rect.width / 2), event.clientY - (rect.top + rect.height / 2));
         return { word, distance };
       });
       positions.forEach(({ word, distance }) => {

@@ -26,7 +26,10 @@ export function CustomCursor() {
       const setRingY = gsap.quickSetter(ring, "y", "px");
       const setDotX = gsap.quickSetter(dot, "x", "px");
       const setDotY = gsap.quickSetter(dot, "y", "px");
-      let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0;
+      let mouseX = 0,
+        mouseY = 0,
+        ringX = 0,
+        ringY = 0;
       let visible = false;
       let interactive = false;
       let shape: gsap.core.Tween | undefined;
@@ -82,21 +85,38 @@ export function CustomCursor() {
         cancelAnimationFrame(scrollFrame);
         if (visible) scrollFrame = requestAnimationFrame(updateShape);
       };
-      const onOut = (event: MouseEvent) => { if (!event.relatedTarget) hide(); };
-      const onKey = (event: KeyboardEvent) => { if (event.key === "Tab") hide(); };
+      const onOut = (event: MouseEvent) => {
+        if (!event.relatedTarget) hide();
+      };
+      const onKey = (event: KeyboardEvent) => {
+        if (event.key === "Tab") hide();
+      };
       const onDown = (event: PointerEvent) => {
         if (event.pointerType !== "mouse" && event.pointerType !== "pen") return;
         const ripple = document.createElement("div");
         Object.assign(ripple.style, {
-          position: "fixed", left: `${event.clientX - 20}px`, top: `${event.clientY - 20}px`,
-          width: "40px", height: "40px", borderRadius: "50%",
-          border: "1px solid rgba(10,10,10,0.4)", pointerEvents: "none", zIndex: "9997",
+          position: "fixed",
+          left: `${event.clientX - 20}px`,
+          top: `${event.clientY - 20}px`,
+          width: "40px",
+          height: "40px",
+          borderRadius: "50%",
+          border: "1px solid rgba(10,10,10,0.4)",
+          pointerEvents: "none",
+          zIndex: "9997",
         });
         ripples.appendChild(ripple);
-        gsap.fromTo(ripple, { scale: 0.2, opacity: 0.6 }, {
-          scale: 2.2, opacity: 0, duration: 0.45, ease: "power2.out",
-          onComplete: () => ripple.remove(),
-        });
+        gsap.fromTo(
+          ripple,
+          { scale: 0.2, opacity: 0.6 },
+          {
+            scale: 2.2,
+            opacity: 0,
+            duration: 0.45,
+            ease: "power2.out",
+            onComplete: () => ripple.remove(),
+          }
+        );
       };
 
       gsap.ticker.add(tick);

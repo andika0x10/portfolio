@@ -6,13 +6,17 @@ const username = "andika0x10";
 const snapshotPath = fileURLToPath(new URL("../app/data/projects.json", import.meta.url));
 
 function isProject(project) {
-  return project !== null && typeof project === "object"
-    && typeof project.name === "string"
-    && (project.description === null || typeof project.description === "string")
-    && typeof project.url === "string"
-    && project.url.startsWith(`https://github.com/${username}/`)
-    && (project.language === null || typeof project.language === "string")
-    && Number.isInteger(project.stars) && project.stars >= 0;
+  return (
+    project !== null &&
+    typeof project === "object" &&
+    typeof project.name === "string" &&
+    (project.description === null || typeof project.description === "string") &&
+    typeof project.url === "string" &&
+    project.url.startsWith(`https://github.com/${username}/`) &&
+    (project.language === null || typeof project.language === "string") &&
+    Number.isInteger(project.stars) &&
+    project.stars >= 0
+  );
 }
 
 export async function fetchProjects({
@@ -30,10 +34,10 @@ export async function fetchProjects({
 
     const projects = [];
     for (let page = 1; ; page++) {
-      const response = await fetchImpl(
-        `https://api.github.com/users/${username}/repos?type=public&sort=pushed&per_page=100&page=${page}`,
-        { headers, signal: AbortSignal.timeout(15_000) },
-      );
+      const response = await fetchImpl(`https://api.github.com/users/${username}/repos?type=public&sort=pushed&per_page=100&page=${page}`, {
+        headers,
+        signal: AbortSignal.timeout(15_000),
+      });
       if (!response.ok) throw new Error(`GitHub API returned HTTP ${response.status}`);
 
       const repos = await response.json();
@@ -62,7 +66,9 @@ export async function fetchProjects({
     return { projects, updated: true };
   } catch (error) {
     // A clean Workers Build can fall back to the snapshot committed with the source.
-    const snapshot = await readFile(outputPath, "utf8").then(JSON.parse).catch(() => null);
+    const snapshot = await readFile(outputPath, "utf8")
+      .then(JSON.parse)
+      .catch(() => null);
     if (!Array.isArray(snapshot) || !snapshot.every(isProject)) {
       throw new Error("GitHub fetch failed and no valid project snapshot is available", { cause: error });
     }

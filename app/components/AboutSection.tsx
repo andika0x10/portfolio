@@ -51,7 +51,8 @@ function WordSplit({ text, highlights = [] }: { text: string; highlights?: strin
                   paddingBottom: highlighted ? "1px" : undefined,
                 }}
               >
-                {word}{index < words.length - 1 ? "\u00A0" : ""}
+                {word}
+                {index < words.length - 1 ? "\u00A0" : ""}
               </span>
             </span>
           </span>
@@ -67,7 +68,8 @@ export function AboutSection() {
 
   return (
     <section id="about" ref={sectionRef} className="section-shell" aria-labelledby="about-title">
-      <h2 id="about-title"
+      <h2
+        id="about-title"
         ref={labelRef}
         onMouseEnter={onLabelHover}
         onMouseLeave={onLabelLeave}
@@ -83,19 +85,30 @@ export function AboutSection() {
           color: "var(--muted)",
           marginBottom: "clamp(1.5rem, 3vw, 3rem)",
         }}
-      >About</h2>
+      >
+        About
+      </h2>
       <div data-velocity-skew data-focus-group>
         {PARAGRAPHS.map((paragraph, index) => (
-          <div key={index} data-focus-item style={{
-            marginBottom: index === PARAGRAPHS.length - 1 ? 0 : "clamp(1.5rem, 2.5vw, 2.5rem)",
-          }}>
-            <p data-focus-content style={{
-              fontSize: paragraph.size,
-              fontWeight: paragraph.weight,
-              lineHeight: 1.62,
-              color: paragraph.muted ? "var(--muted)" : "var(--ink)",
-            }}>
-              <span data-reveal-words><WordSplit text={paragraph.text} highlights={paragraph.highlights} /></span>
+          <div
+            key={index}
+            data-focus-item
+            style={{
+              marginBottom: index === PARAGRAPHS.length - 1 ? 0 : "clamp(1.5rem, 2.5vw, 2.5rem)",
+            }}
+          >
+            <p
+              data-focus-content
+              style={{
+                fontSize: paragraph.size,
+                fontWeight: paragraph.weight,
+                lineHeight: 1.62,
+                color: paragraph.muted ? "var(--muted)" : "var(--ink)",
+              }}
+            >
+              <span data-reveal-words>
+                <WordSplit text={paragraph.text} highlights={paragraph.highlights} />
+              </span>
             </p>
           </div>
         ))}

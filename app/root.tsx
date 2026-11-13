@@ -20,9 +20,7 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export const meta: Route.MetaFunction = ({ error }) => [
-  ...(error != null
-    ? getErrorMetadata(isRouteErrorResponse(error) ? error.status : 500)
-    : getHomeMetadata()),
+  ...(error != null ? getErrorMetadata(isRouteErrorResponse(error) ? error.status : 500) : getHomeMetadata()),
   { name: "theme-color", content: "#ffffff" },
   { name: "format-detection", content: "telephone=no" },
 ];

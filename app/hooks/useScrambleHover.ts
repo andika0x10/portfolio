@@ -35,32 +35,35 @@ export function useScrambleHover<T extends HTMLElement>(originalText?: string, o
     };
   }, [cancel]);
 
-  const trigger = useCallback((customText?: string) => {
-    cancel();
-    const element = ref.current;
-    if (!element) return;
-    const target = customText ?? originalText ?? restingText.current ?? element.textContent ?? "";
-    restingText.current = target;
-    if (!target || !duration || window.matchMedia("(prefers-reduced-motion: reduce), (hover: none)").matches) {
-      element.textContent = target;
-      return;
-    }
-    const start = performance.now();
-    const tick = (now: number) => {
-      const progress = Math.min(1, (now - start) / duration);
-      const resolved = Math.floor(progress * target.length);
-      element.textContent = Array.from(target, (character, index) =>
-        /\s/.test(character) || index < resolved ? character : chars[Math.floor(Math.random() * chars.length)]
-      ).join("");
-      if (progress < 1) {
-        frame.current = requestAnimationFrame(tick);
-      } else {
+  const trigger = useCallback(
+    (customText?: string) => {
+      cancel();
+      const element = ref.current;
+      if (!element) return;
+      const target = customText ?? originalText ?? restingText.current ?? element.textContent ?? "";
+      restingText.current = target;
+      if (!target || !duration || window.matchMedia("(prefers-reduced-motion: reduce), (hover: none)").matches) {
         element.textContent = target;
-        frame.current = null;
+        return;
       }
-    };
-    frame.current = requestAnimationFrame(tick);
-  }, [cancel, originalText, duration, chars]);
+      const start = performance.now();
+      const tick = (now: number) => {
+        const progress = Math.min(1, (now - start) / duration);
+        const resolved = Math.floor(progress * target.length);
+        element.textContent = Array.from(target, (character, index) =>
+          /\s/.test(character) || index < resolved ? character : chars[Math.floor(Math.random() * chars.length)]
+        ).join("");
+        if (progress < 1) {
+          frame.current = requestAnimationFrame(tick);
+        } else {
+          element.textContent = target;
+          frame.current = null;
+        }
+      };
+      frame.current = requestAnimationFrame(tick);
+    },
+    [cancel, originalText, duration, chars]
+  );
 
   return { ref, trigger, onMouseEnter: () => trigger(), onMouseLeave: cancel };
 }

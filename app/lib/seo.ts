@@ -26,11 +26,7 @@ export function getProfileStructuredData() {
       jobTitle: ["Vulnerability Researcher", "Software Engineer"],
       affiliation: { "@type": "CollegeOrUniversity", name: "Sumatera Institute of Technology", alternateName: "ITERA" },
       homeLocation: { "@type": "Place", name: "Bandar Lampung, Indonesia" },
-      sameAs: [
-        "https://github.com/andika0x10",
-        "https://linkedin.com/in/andikadinata",
-        "https://blog.andikadinata.workers.dev/",
-      ],
+      sameAs: ["https://github.com/andika0x10", "https://linkedin.com/in/andikadinata", "https://blog.andikadinata.workers.dev/"],
     },
   };
 }
@@ -68,9 +64,10 @@ export function getErrorMetadata(status = 500): MetaDescriptor[] {
     { title: `${status === 404 ? "Page not found" : "Something went wrong"} — ${SITE_NAME}` },
     {
       name: "description",
-      content: status === 404
-        ? "This page could not be found. Return to Andika Dinata's portfolio."
-        : "An unexpected error occurred. Return to Andika Dinata's portfolio or try again later.",
+      content:
+        status === 404
+          ? "This page could not be found. Return to Andika Dinata's portfolio."
+          : "An unexpected error occurred. Return to Andika Dinata's portfolio or try again later.",
     },
     { name: "robots", content: "noindex, follow" },
   ];

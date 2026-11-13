@@ -25,10 +25,18 @@ export function ExperienceSection() {
         {ITEMS.map((item) => (
           <li key={item.title} data-focus-item>
             <article data-focus-content>
-              <p className="experience__period section-meta" data-reveal-simple>{item.period}</p>
-              <h3 className="entry-title"><EditorialText text={item.title} /></h3>
-              <p className="experience__place"><EditorialText text={item.place} /></p>
-              <p className="experience__description section-copy"><EditorialText text={item.body} /></p>
+              <p className="experience__period section-meta" data-reveal-simple>
+                {item.period}
+              </p>
+              <h3 className="entry-title">
+                <EditorialText text={item.title} />
+              </h3>
+              <p className="experience__place">
+                <EditorialText text={item.place} />
+              </p>
+              <p className="experience__description section-copy">
+                <EditorialText text={item.body} />
+              </p>
             </article>
           </li>
         ))}

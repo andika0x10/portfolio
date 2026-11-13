@@ -20,11 +20,17 @@ export function ProjectsSection({ projects }: { projects: Project[] }) {
             <li key={project.name} data-focus-item>
               <a data-focus-content className="project-link" href={project.url} target="_blank" rel="noopener noreferrer">
                 <div className="project-link__heading">
-                  <h3 className="entry-title"><EditorialText text={project.name} /></h3>
-                  <span className="external-mark" aria-hidden="true">↗</span>
+                  <h3 className="entry-title">
+                    <EditorialText text={project.name} />
+                  </h3>
+                  <span className="external-mark" aria-hidden="true">
+                    ↗
+                  </span>
                 </div>
                 {project.description?.trim() && (
-                  <p className="project-link__description"><EditorialText text={project.description} /></p>
+                  <p className="project-link__description">
+                    <EditorialText text={project.description} />
+                  </p>
                 )}
                 {(project.language || project.stars > 0) && (
                   <p className="section-meta project-link__meta" data-reveal-simple>
@@ -37,7 +43,13 @@ export function ProjectsSection({ projects }: { projects: Project[] }) {
           ))}
         </ul>
       ) : (
-        <p className="section-copy">Find my projects on <a className="text-link" href="https://github.com/andika0x10">GitHub</a>.</p>
+        <p className="section-copy">
+          Find my projects on{" "}
+          <a className="text-link" href="https://github.com/andika0x10">
+            GitHub
+          </a>
+          .
+        </p>
       )}
     </section>
   );

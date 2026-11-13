@@ -14,7 +14,6 @@ export function useSmoothScroll(enabled = true) {
     if (!enabled) return;
     const media = gsap.matchMedia();
     media.add("(prefers-reduced-motion: no-preference)", () => {
-
       const lenis = new Lenis({
         anchors: true,
         duration: 1.15,

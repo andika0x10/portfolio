@@ -1,9 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import {
-  SITE_URL, SITE_TITLE, SOCIAL_IMAGE_URL, getHomeMetadata,
-  getProfileStructuredData, getErrorMetadata, getRobotsTxt, getSitemapXml,
-} from "../app/lib/seo.ts";
+import { SITE_URL, SITE_TITLE, SOCIAL_IMAGE_URL, getHomeMetadata, getProfileStructuredData, getErrorMetadata, getRobotsTxt, getSitemapXml } from "../app/lib/seo.ts";
 
 test("homepage identity and sharing metadata use the production canonical URL", () => {
   const metadata = getHomeMetadata();
@@ -27,11 +24,7 @@ test("profile structured data identifies the visible author and links the blog a
   assert.equal(profile.mainEntity["@type"], "Person");
   assert.equal(profile.mainEntity.name, "Andika Dinata");
   assert.equal(profile.mainEntity.url, SITE_URL);
-  assert.deepEqual(profile.mainEntity.sameAs, [
-    "https://github.com/andika0x10",
-    "https://linkedin.com/in/andikadinata",
-    "https://blog.andikadinata.workers.dev/",
-  ]);
+  assert.deepEqual(profile.mainEntity.sameAs, ["https://github.com/andika0x10", "https://linkedin.com/in/andikadinata", "https://blog.andikadinata.workers.dev/"]);
   assert.doesNotThrow(() => JSON.parse(JSON.stringify(profile)));
   assert.deepEqual(getHomeMetadata().find((item) => "script:ld+json" in item)["script:ld+json"], profile);
 });
@@ -41,7 +34,10 @@ for (const status of [404, 403, 500, 503]) {
     const metadata = getErrorMetadata(status);
     assert.notEqual(metadata.find((item) => "title" in item).title, SITE_TITLE);
     assert.equal(metadata.find((item) => item.name === "robots").content, "noindex, follow");
-    assert.equal(metadata.some((item) => item.rel === "canonical" || "script:ld+json" in item), false);
+    assert.equal(
+      metadata.some((item) => item.rel === "canonical" || "script:ld+json" in item),
+      false
+    );
     assert.match(metadata.find((item) => "title" in item).title, status === 404 ? /Page not found/ : /Something went wrong/);
   });
 }
@@ -50,7 +46,10 @@ test("sitemap lists only the canonical page, not fragments or the separately hos
   const xml = getSitemapXml();
   assert.match(xml, /^<\?xml version="1.0" encoding="UTF-8"\?>/);
   assert.match(xml, /xmlns="http:\/\/www.sitemaps.org\/schemas\/sitemap\/0.9"/);
-  assert.deepEqual([...xml.matchAll(/<loc>(.*?)<\/loc>/g)].map((match) => match[1]), [SITE_URL]);
+  assert.deepEqual(
+    [...xml.matchAll(/<loc>(.*?)<\/loc>/g)].map((match) => match[1]),
+    [SITE_URL]
+  );
 });
 
 test("robots allows crawling the site and advertises its canonical sitemap", () => {

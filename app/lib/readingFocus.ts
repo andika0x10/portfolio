@@ -2,8 +2,7 @@ import gsap from "gsap";
 
 /** Keep pointer and keyboard focus separate; neither may survive a lost interaction. */
 export function attachReadingFocus(group: HTMLElement) {
-  const items = Array.from(group.querySelectorAll<HTMLElement>("[data-focus-item]"))
-    .filter((item) => item.closest("[data-focus-group]") === group);
+  const items = Array.from(group.querySelectorAll<HTMLElement>("[data-focus-item]")).filter((item) => item.closest("[data-focus-group]") === group);
   const controls = items.map((item) => {
     const content = item.querySelector<HTMLElement>(":scope > [data-focus-content]");
     const opacity = Number.parseFloat(getComputedStyle(item).opacity) || 1;
@@ -58,8 +57,7 @@ export function attachReadingFocus(group: HTMLElement) {
     update(focused ?? hovered);
   };
   const onFocusOut = (event: FocusEvent) => {
-    focused = event.relatedTarget instanceof Element && event.relatedTarget.matches(":focus-visible")
-      ? findItem(event.relatedTarget) : null;
+    focused = event.relatedTarget instanceof Element && event.relatedTarget.matches(":focus-visible") ? findItem(event.relatedTarget) : null;
     update(focused ?? hovered);
   };
   const reset = () => {
@@ -75,11 +73,12 @@ export function attachReadingFocus(group: HTMLElement) {
     if (active !== focused) update(focused, true);
     // Scrolling can move a new row under a stationary cursor without a
     // pointerover event. Resolve its current target once scrolling settles.
-    if (pointer) scrollTimer = window.setTimeout(() => {
-      if (!pointer || !document.hasFocus()) return;
-      hovered = findItem(document.elementFromPoint(pointer.x, pointer.y));
-      update(focused ?? hovered);
-    }, 140);
+    if (pointer)
+      scrollTimer = window.setTimeout(() => {
+        if (!pointer || !document.hasFocus()) return;
+        hovered = findItem(document.elementFromPoint(pointer.x, pointer.y));
+        update(focused ?? hovered);
+      }, 140);
   };
   const onWindowOut = (event: MouseEvent) => {
     if (!event.relatedTarget) reset();

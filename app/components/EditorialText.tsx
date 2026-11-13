@@ -10,7 +10,10 @@ export function EditorialText({ text }: { text: string }) {
         {words.map((word, index) => (
           <span className="editorial-clip" key={index}>
             <span className="editorial-word">
-              <span className="editorial-proximity">{word}{index < words.length - 1 ? "\u00a0" : ""}</span>
+              <span className="editorial-proximity">
+                {word}
+                {index < words.length - 1 ? "\u00a0" : ""}
+              </span>
             </span>
           </span>
         ))}

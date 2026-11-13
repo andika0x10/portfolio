@@ -20,12 +20,24 @@ export function ActivitiesSection() {
       <div className="entry-list" data-focus-group>
         {ACTIVITIES.map((item) => (
           <article key={item.title} data-focus-item>
-            <p className="activities__context section-meta" data-reveal-simple>Capture the flag / {item.period}</p>
-            <p className="activities__result"><EditorialText text={`${item.result} place`} /></p>
-            <h3 className="entry-title"><EditorialText text={item.title} /></h3>
-            <p className="activities__team"><EditorialText text={item.meta} /></p>
-            <p className="activities__description section-copy"><EditorialText text={item.body} /></p>
-            <a className="text-link activities__link" href={item.href} target="_blank" rel="noopener noreferrer" data-reveal-simple>Read the article</a>
+            <p className="activities__context section-meta" data-reveal-simple>
+              Capture the flag / {item.period}
+            </p>
+            <p className="activities__result">
+              <EditorialText text={`${item.result} place`} />
+            </p>
+            <h3 className="entry-title">
+              <EditorialText text={item.title} />
+            </h3>
+            <p className="activities__team">
+              <EditorialText text={item.meta} />
+            </p>
+            <p className="activities__description section-copy">
+              <EditorialText text={item.body} />
+            </p>
+            <a className="text-link activities__link" href={item.href} target="_blank" rel="noopener noreferrer" data-reveal-simple>
+              Read the article
+            </a>
           </article>
         ))}
       </div>

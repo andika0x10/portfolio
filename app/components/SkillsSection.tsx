@@ -10,7 +10,9 @@ export function SkillsSection() {
       <SectionLabel id="skills-title">Languages & Tools</SectionLabel>
       <ul className="skills__list" data-focus-group>
         {SKILLS.map((skill) => (
-          <li key={skill} data-focus-item><EditorialText text={skill} /></li>
+          <li key={skill} data-focus-item>
+            <EditorialText text={skill} />
+          </li>
         ))}
       </ul>
     </section>
