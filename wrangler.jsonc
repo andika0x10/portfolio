@@ -7,11 +7,9 @@
 	"name": "portfolio",
 	"compatibility_date": "2026-11-10",
 	"main": "./workers/app.ts",
-	"vars": {
-		"VALUE_FROM_CLOUDFLARE": "Hello from Cloudflare"
-	},
 	"observability": {
-		"enabled": true
+		"enabled": true,
+		"traces": { "enabled": true }
 	},
 	"upload_source_maps": true
 	/**

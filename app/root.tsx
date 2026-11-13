@@ -1,13 +1,9 @@
-import {
-  isRouteErrorResponse,
-  Links,
-  Meta,
-  Outlet,
-  Scripts,
-  ScrollRestoration,
-} from "react-router";
+import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 
 import type { Route } from "./+types/root";
+import { ErrorPage } from "./components/ErrorPage";
+import { CustomCursor } from "./components/CustomCursor";
+import { getHomeMetadata, getErrorMetadata } from "./lib/seo";
 import "./app.css";
 
 export const links: Route.LinksFunction = () => [
@@ -19,8 +15,16 @@ export const links: Route.LinksFunction = () => [
   },
   {
     rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
+    href: "https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Geist+Mono:wght@100..900&display=swap",
   },
+];
+
+export const meta: Route.MetaFunction = ({ error }) => [
+  ...(error != null
+    ? getErrorMetadata(isRouteErrorResponse(error) ? error.status : 500)
+    : getHomeMetadata()),
+  { name: "theme-color", content: "#ffffff" },
+  { name: "format-detection", content: "telephone=no" },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -34,6 +38,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         {children}
+        <CustomCursor />
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -46,30 +51,17 @@ export default function App() {
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  let message = "Oops!";
-  let details = "An unexpected error occurred.";
+  let code = "Error";
+  let details = "Something went wrong. Please try again or return to the home page.";
   let stack: string | undefined;
 
   if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? "404" : "Error";
-    details =
-      error.status === 404
-        ? "The requested page could not be found."
-        : error.statusText || details;
-  } else if (import.meta.env.DEV && error && error instanceof Error) {
+    code = String(error.status);
+    details = error.status === 404 ? "This page could not be found." : error.statusText || details;
+  } else if (import.meta.env.DEV && error instanceof Error) {
     details = error.message;
     stack = error.stack;
   }
 
-  return (
-    <main className="pt-16 p-4 container mx-auto">
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre className="w-full p-4 overflow-x-auto">
-          <code>{stack}</code>
-        </pre>
-      )}
-    </main>
-  );
+  return <ErrorPage key={`${code}:${details}`} code={code} details={details} stack={stack} />;
 }

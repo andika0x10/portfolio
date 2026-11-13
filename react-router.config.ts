@@ -1,7 +1,6 @@
 import type { Config } from "@react-router/dev/config";
 
 export default {
-  // Config options...
-  // Server-side render by default, to enable SPA mode set this to `false`
+  // Render the portfolio in the Workers runtime, then hydrate its animations.
   ssr: true,
 } satisfies Config;
